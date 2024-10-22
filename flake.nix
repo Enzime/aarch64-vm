@@ -9,7 +9,7 @@
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [ "aarch64-darwin" "x86_64-linux" "aarch64-linux" ];
-    perSystem = { pkgs, ... }: {
+    perSystem = { self', pkgs, ... }: {
       packages.deploy-macos = pkgs.writeShellApplication {
         name = "deploy-macos";
         text = ''
@@ -17,6 +17,8 @@
           ssh -t enzime@hermes-macos-aarch64-darwin-vm darwin-rebuild switch --flake ${./.}
         '';
       };
+
+      packages.default = self'.packages.deploy-macos;
     };
     flake = {
       darwinConfigurations.hermes-macos-aarch64-darwin-vm = inputs.nix-darwin.lib.darwinSystem {
