@@ -13,8 +13,8 @@
       packages.deploy-macos = pkgs.writeShellApplication {
         name = "deploy-macos";
         text = ''
-          nix copy --to ssh-ng://enzime@hermes-macos-aarch64-darwin-vm ${./.}
-          ssh -t enzime@hermes-macos-aarch64-darwin-vm darwin-rebuild switch --flake ${./.}
+          nix copy --to ssh-ng://enzime@hermes-macos-aarch64-darwin-vm ${./.} ${inputs.nix-darwin}
+          ssh -t enzime@hermes-macos-aarch64-darwin-vm darwin-rebuild switch --flake ${./.} --override-input nix-darwin ${inputs.nix-darwin}
         '';
       };
 
