@@ -9,12 +9,18 @@
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [ "aarch64-darwin" "x86_64-linux" "aarch64-linux" ];
-    perSystem = { self', pkgs, ... }: {
+    perSystem = { self', pkgs, lib, ... }: {
       packages.deploy-macos = pkgs.writeShellApplication {
         name = "deploy-macos";
-        text = ''
-          nix copy --to ssh-ng://enzime@hermes-macos-aarch64-darwin-vm ${./.} ${inputs.nix-darwin}
-          ssh -t enzime@hermes-macos-aarch64-darwin-vm darwin-rebuild switch --flake ${./.} --override-input nix-darwin ${inputs.nix-darwin}
+        text = let
+          darwin-rebuild = inputs.self.darwinConfigurations.hermes-macos-aarch64-darwin-vm.config.system.build.darwin-rebuild;
+        in ''
+          if [[ $(hostname) != "hermes-macos-aarch64-darwin-vm" ]]; then
+            nix copy --to ssh-ng://enzime@hermes-macos-aarch64-darwin-vm ${./.} ${inputs.nix-darwin} ${darwin-rebuild}
+            ssh -t enzime@hermes-macos-aarch64-darwin-vm ${lib.getExe darwin-rebuild} switch --flake ${./.} --override-input nix-darwin ${inputs.nix-darwin}
+          else
+            ${lib.getExe darwin-rebuild} switch --flake ${./.} --override-input nix-darwin ${inputs.nix-darwin}
+          fi
         '';
       };
 
