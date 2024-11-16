@@ -45,7 +45,11 @@
 
             services.tailscale.enable = true;
 
+            users.users.enzime.uid = 501;
+            users.users.enzime.shell = pkgs.zsh;
             users.users.enzime.openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINKZfejb9htpSB5K9p0RuEowErkba2BMKaze93ZVkQIE" ];
+
+            users.knownUsers = [ "enzime" ];
           })
         ];
       };
